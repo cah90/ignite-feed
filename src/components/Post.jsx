@@ -1,38 +1,55 @@
+import { format, formatDistanceToNow } from "date-fns"
+import ptBR from "date-fns/locale/pt-BR"
+
 import { Comment } from "./Comment"
 import { Avatar } from "./Avatar"
 import styles from "./Post.module.css"
 
-export function Post(props) {
+export function Post({ author, publishedAt, content }) {
+	const publishedDateFormatted = format(
+		publishedAt,
+		"d 'de' LLLL 'às' HH:mm'h'",
+		{
+			locale: ptBR,
+		}
+	)
+
+	const publishedDateRelativetoNow = formatDistanceToNow(publishedAt, {
+		locale: ptBR,
+		addSuffix: true,
+	})
+
 	return (
 		<article className={styles.post}>
 			<header>
 				<div className={styles.author}>
-					<Avatar
-						className={styles.avatar}
-						source="https://github.com/cah90.png"
-					/>
+					<Avatar className={styles.avatar} source={author.avatarUrl} />
 					<div className={styles.authorInfo}>
-						<strong>Ana Maria</strong>
-						<span>Web Developer</span>
+						<strong>{author.name}</strong>
+						<span>{author.role}</span>
 					</div>
 				</div>
 
-				<time title="11 de maio as 08:13" dateTime="2023-05-11 08:13:40">
-					Publicado há 1h
+				<time
+					title={publishedDateFormatted}
+					dateTime={publishedAt.toISOString()}
+				>
+					{publishedDateRelativetoNow}
 				</time>
 			</header>
 
 			<div className={styles.content}>
-				<p>Fala galera!</p>
-
-				<p>
-					Acabei de subir mais um projeto no meu portfolio. É um projeto que fiz
-					no NLW Return, evento da Rocketseat. O nome do projeto é DoctorCare.
-				</p>
-
-				<p>
-					<a href="#">jane.design/doctorcare</a>
-				</p>
+				{content.map((line) => {
+					if (line.type === "paragraph") {
+						return <p>{line.content}</p>
+					} else if (line.link === "link") {
+						return (
+							<p>
+								<a href="#">{line.content}</a>
+							</p>
+						)
+					}
+				})}
 
 				<p>
 					<a href="#">#novoprojeto</a> <a href="#">#nlw</a>{" "}
